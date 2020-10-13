@@ -1,19 +1,19 @@
 import re
 import requests
 
-class FusionDirectoryAPI():
 
+class FusionDirectoryAPI:
     def __init__(self, host, user, password, database):
 
         # The session to use for all requests
         self._session = requests.Session()
-    
+
         # The URL of the FD server
-        self._url = f'{host}/jsonrpc.php'
+        self._url = f"{host}/jsonrpc.php"
 
         # Log in to get this ID from FD
         self._session_id = None
-        
+
         # Send this ID wuth all requests
         self._id = "API"
 
@@ -25,13 +25,10 @@ class FusionDirectoryAPI():
         Return the configured LDAP base for the selected LDAP
         in this webservice session (see login)
         """
-        data = {
-            "method": "getBase",
-            "params": [self._session_id]
-            }
+        data = {"method": "getBase", "params": [self._session_id]}
         return self._post(data)
 
-    def count(self, object_type, ou = None, filter = ""):
+    def count(self, object_type, ou=None, filter=""):
         """
         Return the number of objects of type $type in $ou
         """
@@ -41,21 +38,18 @@ class FusionDirectoryAPI():
             return 0
         data = {
             "method": "count",
-            "params": [self._session_id, object_type, ou, filter]
-            }
+            "params": [self._session_id, object_type, ou, filter],
+        }
         return self._post(data)
 
     def get_id(self):
         """
         Get current session ID
         """
-        data = {
-            "method": "getId",
-            "params": [self._session_id]
-            }
+        data = {"method": "getId", "params": [self._session_id]}
         return self._post(data)
 
-    def list(self, object_type, attributes = None, ou = None, filter = ""):
+    def list(self, object_type, attributes=None, ou=None, filter=""):
         """
         Get list of objects of type object_type in ou
         object_type: The objectType to list
@@ -72,61 +66,44 @@ class FusionDirectoryAPI():
         """
         data = {
             "method": "ls",
-            "params": [self._session_id, object_type, attributes, ou, filter]
-            }
+            "params": [self._session_id, object_type, attributes, ou, filter],
+        }
         return self._post(data)
 
     def list_ldaps(self):
         """
         List LDAP servers managed by FD
         """
-        data = {
-            "method": "listLdaps",
-            "params": []
-            }
+        data = {"method": "listLdaps", "params": []}
         return self._post(data)
 
     def list_types(self):
         """
         List of object types know to the server
         """
-        data = {
-            "method": "listTypes",
-            "params": [self._session_id]
-            }
+        data = {"method": "listTypes", "params": [self._session_id]}
         return self._post(data)
-
 
     def info(self, object_type):
         """
         The information on this object type as an associative array
         """
-        data = {
-            "method": "infos",
-            "params": [self._session_id, object_type]
-            }
+        data = {"method": "infos", "params": [self._session_id, object_type]}
         return self._post(data)
-
 
     def is_user_locked(self, user_dn):
         """
         Returns an associative array of booleans, the keys are the
         dns of the users. 0 = unlocked, 1 = locked.
         """
-        data = {
-            "method": "isUserLocked",
-            "params": [self._session_id, user_dn]
-            }
+        data = {"method": "isUserLocked", "params": [self._session_id, user_dn]}
         return self._post(data)
 
     def lock_user(self, user_dn):
         """
         Lock a user
         """
-        data = {
-            "method": "lockUser",
-            "params": [self._session_id, user_dn, "lock"]
-            }
+        data = {"method": "lockUser", "params": [self._session_id, user_dn, "lock"]}
         self._post(data)
         return True
 
@@ -134,24 +111,16 @@ class FusionDirectoryAPI():
         """
         Login to FD by getting a session ID to include in post
         """
-        data = {
-            "method": "login",
-            "params": [database, user, password]
-            }
+        data = {"method": "login", "params": [database, user, password]}
         self._session_id = self._post(data)
-
 
     def unlock_user(self, user_dn):
         """
         Unlock a user
         """
-        data = {
-            "method": "lockUser",
-            "params": [self._session_id, user_dn, "unlock"]
-            }
+        data = {"method": "lockUser", "params": [self._session_id, user_dn, "unlock"]}
         self._post(data)
         return True
-
 
     def _post(self, data):
         """
@@ -175,7 +144,7 @@ class FusionDirectoryAPI():
         # Get the json in the result
         r = r.json()
 
-        if r['error'] == None:
+        if r["error"] == None:
             return r["result"]
         else:
             print(r)
