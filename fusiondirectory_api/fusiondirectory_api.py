@@ -20,47 +20,28 @@ class FusionDirectoryAPI():
         # Login to FD (Get a session_id)
         self.login(user, password, database)
 
-
-    def login(self, user, password, database):
-        """
-        Login to FD by getting a session ID to include in post
-        """
-        data = {
-            "method": "login",
-            "params": [database, user, password]
-            }
-        self._session_id = self._post(data)
-
-
-    def is_user_locked(self, user_dn):
-        """
-        Returns an associative array of booleans, the keys are the
-        dns of the users. 0 = unlocked, 1 = locked.
-        """
-        data = {
-            "method": "isUserLocked",
-            "params": [self._session_id, user_dn]
-            }
-        return self._post(data)
-
-    def list_types(self):
-        """
-        List of object types
-        """
-        data = {
-            "method": "listTypes",
-            "params": [self._session_id]
-            }
-        return self._post(data)
-
     def get_base(self):
         """
-        Return he configured LDAP base for the selected LDAP
+        Return the configured LDAP base for the selected LDAP
         in this webservice session (see login)
         """
         data = {
             "method": "getBase",
             "params": [self._session_id]
+            }
+        return self._post(data)
+
+    def count(self, object_type, ou = None, filter = ""):
+        """
+        Return the number of objects of type $type in $ou
+        """
+        # Querying for these object types will return an error.
+        # Return a count of 0 instead (There may be others)
+        if object_type.upper() in ["DASHBOARD", "SPECIAL", "LDAPMANAGER"]:
+            return 0
+        data = {
+            "method": "count",
+            "params": [self._session_id, object_type, ou, filter]
             }
         return self._post(data)
 
@@ -74,7 +55,6 @@ class FusionDirectoryAPI():
             }
         return self._post(data)
 
-
     def list_ldaps(self):
         """
         List LDAP servers managed by FD
@@ -85,6 +65,38 @@ class FusionDirectoryAPI():
             }
         return self._post(data)
 
+    def list_types(self):
+        """
+        List of object types
+        """
+        data = {
+            "method": "listTypes",
+            "params": [self._session_id]
+            }
+        return self._post(data)
+
+
+    def info(self, object_type):
+        """
+        The information on this object type as an associative array
+        """
+        data = {
+            "method": "infos",
+            "params": [self._session_id, object_type]
+            }
+        return self._post(data)
+
+
+    def is_user_locked(self, user_dn):
+        """
+        Returns an associative array of booleans, the keys are the
+        dns of the users. 0 = unlocked, 1 = locked.
+        """
+        data = {
+            "method": "isUserLocked",
+            "params": [self._session_id, user_dn]
+            }
+        return self._post(data)
 
     def lock_user(self, user_dn):
         """
@@ -96,6 +108,17 @@ class FusionDirectoryAPI():
             }
         self._post(data)
         return True
+
+    def login(self, user, password, database):
+        """
+        Login to FD by getting a session ID to include in post
+        """
+        data = {
+            "method": "login",
+            "params": [database, user, password]
+            }
+        self._session_id = self._post(data)
+
 
     def unlock_user(self, user_dn):
         """
@@ -134,4 +157,5 @@ class FusionDirectoryAPI():
         if r['error'] == None:
             return r["result"]
         else:
-            raise Exception("FD returned error: {r['error']}")
+            print(r)
+            raise Exception(f"FD returned error: {r['error']}")
