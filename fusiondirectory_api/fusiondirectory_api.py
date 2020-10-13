@@ -55,6 +55,27 @@ class FusionDirectoryAPI():
             }
         return self._post(data)
 
+    def list(self, object_type, attributes = None, ou = None, filter = ""):
+        """
+        Get list of objects of type object_type in ou
+        object_type: The objectType to list
+        attributes: The attributes to fetch.
+        If this is a single value, the resulting associative array will have for each dn the value of this attribute.
+        If this is an array, the keys must be the wanted attributes, and the values can be either 1, '*', 'b64' or 'raw'
+        depending if you want a single value or an array of values.
+        Other values are considered to be 1.
+        'raw' means untouched LDAP value and is only useful for dns.
+        'b64' means an array of base64 encoded values and is mainly useful for binary attributes.
+        ou: The LDAP branch to search in, base will be used if it is None
+        filter: An additional filter to use in the LDAP search.
+        Returns a list of objects as a dictionary (keys are dns)
+        """
+        data = {
+            "method": "ls",
+            "params": [self._session_id, object_type, attributes, ou, filter]
+            }
+        return self._post(data)
+
     def list_ldaps(self):
         """
         List LDAP servers managed by FD
@@ -67,7 +88,7 @@ class FusionDirectoryAPI():
 
     def list_types(self):
         """
-        List of object types
+        List of object types know to the server
         """
         data = {
             "method": "listTypes",
