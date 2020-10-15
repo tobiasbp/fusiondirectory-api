@@ -66,9 +66,9 @@ class FusionDirectoryAPI:
         }
         return self._post(data)
 
-    def count(self, object_type, ou=None, filter=""):
+    def get_number_of_objects(self, object_type, ou=None, filter=""):
         """
-        Get the number of an object type in an ou
+        Get the number of a given object type limited by OU and/or filter
 
         Args:
             object_type (str): The object type
@@ -78,10 +78,6 @@ class FusionDirectoryAPI:
         Returns:
             The number of objects of type object_type in the OU (int)
         """
-        # Querying for these object types will return an error.
-        # Return a count of 0 instead (There may be others)
-        if object_type.upper() in ["DASHBOARD", "SPECIAL", "LDAPMANAGER"]:
-            return 0
         data = {
             "method": "count",
             "params": [self._session_id, object_type, ou, filter],
@@ -98,9 +94,10 @@ class FusionDirectoryAPI:
         data = {"method": "getId", "params": [self._session_id]}
         return self._post(data)
 
-    def list_objects(self, object_type, attributes=None, ou=None, filter=""):
+    def get_objects(self, object_type, attributes=None, ou=None, filter=""):
         """
-        Get list of objects. Potentially with LDAP attributes.
+        Get list of objects. Potentially with LDAP attributes and limited
+        by OU and/or a filter.
 
         Arguments:
             object_type (str): The object type to list
@@ -125,7 +122,7 @@ class FusionDirectoryAPI:
         }
         return self._post(data)
 
-    def list_ldaps(self):
+    def get_databases(self):
         """
         List LDAP databases/servers managed by FD. These are the valid
         values for the 'database' argument in login()
@@ -136,22 +133,22 @@ class FusionDirectoryAPI:
         data = {"method": "listLdaps", "params": []}
         return self._post(data)
 
-    def list_types(self):
+    def get_object_types(self):
         """
-        List of object types known to the server
+        Get object types known to the server
 
         Returns:
             A dictionary with object type as key and
-            object name as value (dict)
+            object name (Used in GUI) as value
         """
         data = {"method": "listTypes", "params": [self._session_id]}
         return self._post(data)
 
-    def list_tabs(self, object_type, dn=None):
+    def get_tabs(self, object_type, dn=None):
         """
         Get tabs for on an object type. If a DN is supplied
-        the data returned will show if the tab is active for the
-        for the object with the DN.
+        the data returned will show if the tab is active
+        for the object with the supplied DN.
 
         Args:
             object_type (str): The object type to get tabs for
