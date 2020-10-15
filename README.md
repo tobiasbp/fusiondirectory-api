@@ -1,5 +1,5 @@
 # fusiondirectory-api
-A Python3 wrapper for the RPC API of LDAP manager [FusionDirectory}(https://fusiondirectory-user-manual.readthedocs.io/en/latest/).
+A Python3 wrapper for the RPC API of LDAP manager [FusionDirectory](https://fusiondirectory-user-manual.readthedocs.io/en/latest/).
 You need to enable the plugin _webservice_ in FusionDirectory to be able to use the API.
 
 This wrapper supports the RPC based API in versions of FusionDirectory 1.3. This API may be deprecated in version 1.4
@@ -75,8 +75,10 @@ This section contains som examples showing how to use the API.
 ## Logging in
 Log in, and show available object types.
 ```
+# Import the library
 from fusiondirectory_api import FusionDirectoryAPI
 
+# Log in to the FusionDirectory server
 api = FusionDirectoryAPI(
   host = "https://ldap.example.org",
   user = "user-name",
@@ -84,14 +86,17 @@ api = FusionDirectoryAPI(
   database = "my-ldap",
   )
 
+# Get the object types available
 object_types = api.list_types()
+
+# Print the object types
 print(object_types)
 
 ```
 
 ## Creating a new user
 Let's create a new object of type __USER__.
-Its assumed you have created the object _api_ as shown in the exampel above.
+Its assumed you have created the object _api_ as shown in the example above.
 Note, that the password is a list, because the inner workings are based on the GUI, where
 the user has to type password twice (To confirm).
 
