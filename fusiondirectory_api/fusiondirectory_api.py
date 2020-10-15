@@ -21,7 +21,7 @@ class FusionDirectoryAPI:
         if login:
             self.login(user, password, database)
 
-    def delete(self, object_type, dn):
+    def delete_object(self, object_type, dn):
         """
         Delete an object
 
@@ -50,15 +50,15 @@ class FusionDirectoryAPI:
 
     def get_fields(self, object_type, dn=None, tab=None):
         """
-        \brief Get all internal FD fields from an object (or an object type)
-        *
-        * Fields as they are stored in FusionDirectory
-        *
-        * \param string  $type the object type
-        * \param string  $dn   the object to load values from if any
-        * \param string  $tab  the tab to show if not the main one
-        *
-        * \return All FD attributes organized as sections
+        Get all fields of an object type as they are stored in FusionDirectory
+
+        Args:
+            object_type (str): The type of object to get the fields for
+            dn (str): The optional object to load values from
+            tab (str): The name tab to show (main by default)
+
+        Returns:
+            All FD attributes organized as sections
         """
         data = {
             "method": "getFields",
@@ -279,13 +279,13 @@ class FusionDirectoryAPI:
         }
         return self._post(data)
 
-    def set_fields(self, object_type, dn, values):
+    def _set_fields(self, object_type, dn, values):
         """
-        Add/Update values in an object
+        Update an object
 
         Args:
             object_type (str): The type of the object to update
-            dn (str): The dn of the object to update
+            dn (str): The dn of the object to update (Creates new object if None)
             values (str): A dictionary of values to update the object with.
             First level keys are tabs, second level keys should be the same
             keys returned by get_fields (without section, directly the attributes).
@@ -298,6 +298,34 @@ class FusionDirectoryAPI:
             "params": [self._session_id, object_type, dn, values],
         }
         return self._post(data)
+
+    def create_object(self, object_type, values):
+        """
+        Create a new object
+
+        Args:
+            object_type (str): The type of object to create
+            values (dict): The values to use for the new object.
+            Outher keys are tabs, then fields with values
+
+        Returns:
+            The DN of the created object (str)
+        """
+        return self._set_fields(object_type, None, values)
+
+    def update_object(self, object_type, dn, values):
+        """
+        Update an object
+
+        Args:
+            object_type (str): The type of object update
+            values (dict): A dictionary of tabs->field:value
+            dn (str): The DN of the object to update
+
+        Returns:
+            The DN of the updated object (str)
+        """
+        return self._set_fields(object_type, dn, values)
 
     def set_password(self, uid, password, token):
         """
