@@ -5,10 +5,13 @@ You need to enable the plugin _webservice_ in FusionDirectory to be able to use 
 This wrapper supports the RPC based API in versions of FusionDirectory up to 1.3. This API may be deprecated in version 1.4
 as a change to a REST based API is planned.
 
-As FusionDirectory manages data in LDAP, the database can also be updated directly in LDAP. The API, however,
-allows for restriction of acces using FusionDirectory's Access Control Lists, and the ability to create
-objects based on templates defined in the GUI. It may also be of advantage to you, that you can access the data
-in LDAP via HTTP/HTTPS on ports 80/443 instead of through the LDAP ports 389/636.
+As FusionDirectory manages data in LDAP, the database can also be updated directly in LDAP. However, using the API has the
+following advantages:
+
+* Access for the API user is controlled by access control lists created in the FusionDirectory GUI. No need to configure access on the LDAP server.
+* Objects can be created from templates maintained in the FusionDirectory GUI.
+* LDAP data can be accessed via HTTP/HTTPS on ports 80/443 instead of through the LDAP ports 389/636.
+* Users can be locked/unlocked (Prefix encrypted password with _!_) without giving the API user access to the ldap field _userPassword_.
 
 # Installation
 
@@ -151,10 +154,10 @@ Delete the user from the examples above.
 
 ```
 # Delete the user
-deleted_user_dn = api.delete_object("USER", new_user_dn)
+result = api.delete_object("USER", new_user_dn)
 
-# Print to confirm
-print(f"Deleted user: {deleted_user_dn}")
+# Print to confirm (True)
+print(f"Deleted user: {result}")
 ```
 
 # Class documentation
@@ -164,25 +167,24 @@ Technical documentation. For a description of each medthod, look at doc strings 
 * FusionDirectoryAPI(host, user, password, database, login=True)
 
 ## Methods
-* create_object_from_template(object_type, template_dn, values)
-* create_object(object_type, values)
-* delete_tab(object_type, dn, tab)
-* delete_object(object_type, dn)
+* create_object(object_type, values, template_dn=None)
+* delete_tab(object_type, object_dn, tab)
+* delete_object(object_type, object_dn)
 * get_base()
-* get_fields(object_type, dn=None, tab=None)
+* get_fields(object_type, object_dn=None, tab=None)
 * get_number_of_objects(object_type, ou=None, filter="")
 * get_id()
 * get_objects(object_type, attributes=None, ou=None, filter="")
 * get_databases()
 * get_object_types()
-* get_tabs(object_type, dn=None)
+* get_tabs(object_type, object_dn=None)
 * get_info(object_type)
 * get_recovery_token(email)
-* get_template(object_type, dn)
+* get_template(object_type, template_dn)
 * is_user_locked(user_dn)
 * lock_user(user_dn)
 * login(user, password, database)
 * logout()
 * set_password(uid, password, token)
 * unlock_user(user_dn)
-* update_object(object_type, dn, values)
+* update_object(object_type, object_dn, values)
