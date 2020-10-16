@@ -21,24 +21,24 @@ class FusionDirectoryAPI:
         if login:
             self.login(user, password, database)
 
-    def delete_object(self, object_type, dn):
+    def delete_object(self, object_type, object_dn):
         """
         Delete an object
 
         Args:
             object_type (str): The type of the object to remove
-            dn (str): The DN of the object to remove
+            object_dn (str): The DN of the object to remove
 
         Returns:
             True on success
         """
-        data = {"method": "delete", "params": [self._session_id, object_type, dn]}
+        data = {"method": "delete", "params": [self._session_id, object_type, object_dn]}
         r = self._post(data)
         # Api returns nothing on success, so anything is an error
         if r:
             raise Exception(r)
         else:
-            return dn
+            return True
 
     def get_base(self):
         """
@@ -48,7 +48,7 @@ class FusionDirectoryAPI:
         data = {"method": "getBase", "params": [self._session_id]}
         return self._post(data)
 
-    def get_fields(self, object_type, dn=None, tab=None):
+    def get_fields(self, object_type, object_dn=None, tab=None):
         """
         Get all fields of an object type as they are stored in FusionDirectory
 
@@ -62,7 +62,7 @@ class FusionDirectoryAPI:
         """
         data = {
             "method": "getFields",
-            "params": [self._session_id, object_type, dn, tab],
+            "params": [self._session_id, object_type, object_dn, tab],
         }
         return self._post(data)
 
@@ -96,7 +96,7 @@ class FusionDirectoryAPI:
 
     def get_objects(self, object_type, attributes=None, ou=None, filter=""):
         """
-        Get list of objects. Potentially with LDAP attributes and limited
+        Get objects of a certain type. Potentially with LDAP attributes and limited
         by OU and/or a filter.
 
         Arguments:
@@ -144,7 +144,7 @@ class FusionDirectoryAPI:
         data = {"method": "listTypes", "params": [self._session_id]}
         return self._post(data)
 
-    def get_tabs(self, object_type, dn=None):
+    def get_tabs(self, object_type, object_dn=None):
         """
         Get tabs for on an object type. If a DN is supplied
         the data returned will show if the tab is active
@@ -152,13 +152,13 @@ class FusionDirectoryAPI:
 
         Args:
             object_type (str): The object type to get tabs for
-            dn (str): The dn of an object to get active values from
+            object_dn (str): The dn of an object to get active values from
 
         Returns:
             A dictionary with tabs as keys and a dictionary with
             tab name (str) and active (Bool)
         """
-        data = {"method": "listTabs", "params": [self._session_id, object_type, dn]}
+        data = {"method": "listTabs", "params": [self._session_id, object_type, object_dn]}
         return self._post(data)
 
     def get_info(self, object_type):
@@ -246,7 +246,7 @@ class FusionDirectoryAPI:
 
     def get_template(self, object_type, template_dn):
         """
-        Get template
+        Get a template
 
         Args:
             object_type (str): The type of the object the template is for
@@ -258,13 +258,13 @@ class FusionDirectoryAPI:
         data = {"method": "gettemplate", "params": [self._session_id, object_type, template_dn]}
         return self._post(data)
 
-    def delete_tab(self, object_type, dn, tab):
+    def delete_tab(self, object_type, object_dn, tab):
         """
         Deletes a tab, with fields, from an object
 
         Args:
             object_type (str): The type of the object to remove a tab from
-            dn (str): The dn of the object to remove a tab from
+            object_dn (str): The dn of the object to remove a tab from
             tab (str): The tab to remove
 
         Returns:
@@ -272,17 +272,17 @@ class FusionDirectoryAPI:
         """
         data = {
             "method": "removetab",
-            "params": [self._session_id, object_type, dn, tab],
+            "params": [self._session_id, object_type, object_dn, tab],
         }
         return self._post(data)
 
-    def _set_fields(self, object_type, dn, values):
+    def _set_fields(self, object_type, object_dn, values):
         """
         Update an object
 
         Args:
             object_type (str): The type of the object to update
-            dn (str): The dn of the object to update (Creates new object if None)
+            object_dn (str): The dn of the object to update (Creates new object if None)
             values (str): A dictionary of values to update the object with.
             First level keys are tabs, second level keys should be the same
             keys returned by get_fields (without section, directly the attributes).
@@ -292,7 +292,7 @@ class FusionDirectoryAPI:
         """
         data = {
             "method": "setFields",
-            "params": [self._session_id, object_type, dn, values],
+            "params": [self._session_id, object_type, object_dn, values],
         }
         return self._post(data)
 
@@ -310,19 +310,19 @@ class FusionDirectoryAPI:
         """
         return self._set_fields(object_type, None, values)
 
-    def update_object(self, object_type, dn, values):
+    def update_object(self, object_type, object_dn, values):
         """
         Update an object
 
         Args:
             object_type (str): The type of object update
             values (dict): A dictionary of tabs->field:value
-            dn (str): The DN of the object to update
+            object_dn (str): The DN of the object to update
 
         Returns:
             The DN of the updated object (str)
         """
-        return self._set_fields(object_type, dn, values)
+        return self._set_fields(object_type, object_dn, values)
 
     def set_password(self, uid, password, token):
         """
