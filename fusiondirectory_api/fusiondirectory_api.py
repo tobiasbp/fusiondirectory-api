@@ -161,7 +161,7 @@ class FusionDirectoryAPI:
         data = {"method": "listTabs", "params": [self._session_id, object_type, dn]}
         return self._post(data)
 
-    def info(self, object_type):
+    def get_info(self, object_type):
         """
         Get the information on an object type
 
@@ -244,7 +244,7 @@ class FusionDirectoryAPI:
         r = self._post(data)
         return r["token"]
 
-    def get_template(self, object_type, dn):
+    def get_template(self, object_type, template_dn):
         """
         Get template
 
@@ -255,7 +255,7 @@ class FusionDirectoryAPI:
         Returns:
             dict: FusionDirectory attributes organized as tabs
         """
-        data = {"method": "gettemplate", "params": [self._session_id, object_type, dn]}
+        data = {"method": "gettemplate", "params": [self._session_id, object_type, template_dn]}
         return self._post(data)
 
     def delete_tab(self, object_type, dn, tab):
@@ -356,13 +356,13 @@ class FusionDirectoryAPI:
         self._post(data)
         return True
 
-    def use_template(self, object_type, dn, values):
+    def create_object_from_template(self, object_type, template_dn, values):
         """
         Create an object from a template
 
         Args:
             object_type (str): The type of the object to create
-            dn (str): The dn of the template to use
+            template_dn (str): The dn of the template to use
             values (str): A dictionary of values for the fields in the new object.
             First level keys are tabs, second level keys should be the same
             keys returned by get_fields (without section, directly the attributes).
@@ -372,7 +372,7 @@ class FusionDirectoryAPI:
         """
         data = {
             "method": "usetemplate",
-            "params": [self._session_id, object_type, dn, values],
+            "params": [self._session_id, object_type, template_dn, values],
         }
         r = self._post(data)
         return r

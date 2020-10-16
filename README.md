@@ -7,7 +7,7 @@ as a change to a REST based API is planned.
 
 # Installation
 
-Install with pip: `pip3 install fusiondirectory-api"
+Install with pip: `pip3 install fusiondirectory-api`
 
 # Overview
 A description of key concepts when working with the FusionDirectory API
@@ -17,12 +17,12 @@ FusionDirectory can handle more than a single database. In the GUI, the database
 When the using the API, the name of the database to use, must be supplied when logging in.
 
 ## Objects
-FusionDirectory handles a number of _objects_.
+FusionDirectory organizes data in _objects_. There are different types of _object_. One type of object is _USER_.
 In general, the object type needs to be specified along with the _object_'s [DN](https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ldap/distinguished-names)
 when manipulating objects with the API.
 
 The object types supported by an installation of FusionDirectory, depends on which plugins are enabled. The list of objects
-in an installation can be retrieved by calling _list_types()_.
+in an installation can be retrieved by calling _get_object_types()_.
 
 These are the objects in the FusionDirectory installation of the author of this project:
 * CONFIGURATION
@@ -49,7 +49,7 @@ These are the objects in the FusionDirectory installation of the author of this 
 
 ## Tabs
 The data for an _object_, is organized in _tabs_. The tabs available for an object type, depends on the activated plugins.
-The tabs available for an object type can be retrieved by calling _list_tabs(OBJECT_TYPE)_. By default, tabs are inactive.
+The tabs available for an object type can be retrieved by calling _get_tabs(OBJECT_TYPE)_. By default, tabs are inactive.
 The following dictionary shows the avaiable tabs for the object type _USER_ in the author's installation.
 The outher keys are the values which should be used when refering to a tab when using the API. The _name_ is the name
 for the tab in the webinterface GUI.
@@ -87,7 +87,7 @@ api = FusionDirectoryAPI(
   )
 
 # Get the object types available
-object_types = api.list_types()
+object_types = api.get_object_types()
 
 # Print the object types
 print(object_types)
@@ -98,7 +98,7 @@ print(object_types)
 Let's create a new object of type __USER__.
 Its assumed you have created the object _api_ as shown in the example above.
 Note, that the password is a list, because the inner workings are based on the GUI, where
-the user has to type password twice (To confirm).
+the user has to type the password twice (To confirm).
 
 ```
 # The data for the new user
@@ -149,3 +149,26 @@ print(f"Deleted user: {deleted_user_dn}")
 
 # Methods 
 The methods in the API. For now look in the code. All methods have doc strings.
+
+* create_object_from_template(object_type, template_dn, values)
+* create_object(object_type, values)
+* delete_tab(object_type, dn, tab)
+* delete_object(object_type, dn)
+* get_base()
+* get_fields(object_type, dn=None, tab=None)
+* get_number_of_objects(object_type, ou=None, filter="")
+* get_id()
+* get_objects(object_type, attributes=None, ou=None, filter="")
+* get_databases()
+* get_object_types()
+* get_tabs(object_type, dn=None)
+* get_info(object_type)
+* get_recovery_token(email)
+* get_template(object_type, dn)
+* is_user_locked(user_dn)
+* lock_user(user_dn)
+* login(user, password, database)
+* logout()
+* set_password(uid, password, token)
+* unlock_user(user_dn)
+* update_object(object_type, dn, values)
