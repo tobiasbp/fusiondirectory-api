@@ -32,7 +32,10 @@ class FusionDirectoryAPI:
         Returns:
             True on success
         """
-        data = {"method": "delete", "params": [self._session_id, object_type, object_dn]}
+        data = {
+            "method": "delete",
+            "params": [self._session_id, object_type, object_dn],
+        }
         r = self._post(data)
         # Api returns nothing on success, so anything is an error
         if r:
@@ -158,7 +161,10 @@ class FusionDirectoryAPI:
             A dictionary with tabs as keys and a dictionary with
             tab name (str) and active (Bool)
         """
-        data = {"method": "listTabs", "params": [self._session_id, object_type, object_dn]}
+        data = {
+            "method": "listTabs",
+            "params": [self._session_id, object_type, object_dn],
+        }
         return self._post(data)
 
     def get_info(self, object_type):
@@ -255,7 +261,10 @@ class FusionDirectoryAPI:
         Returns:
             dict: FusionDirectory attributes organized as tabs
         """
-        data = {"method": "gettemplate", "params": [self._session_id, object_type, template_dn]}
+        data = {
+            "method": "gettemplate",
+            "params": [self._session_id, object_type, template_dn],
+        }
         return self._post(data)
 
     def delete_tab(self, object_type, object_dn, tab):
@@ -296,19 +305,23 @@ class FusionDirectoryAPI:
         }
         return self._post(data)
 
-    def create_object(self, object_type, values):
+    def create_object(self, object_type, values, template_dn=None):
         """
-        Create a new object
+        Create a new object. Optionally from a template.
 
         Args:
             object_type (str): The type of object to create
             values (dict): The values to use for the new object.
+            template_dn (str): Optional template for object creation
             Outher keys are tabs, then fields with values
 
         Returns:
             The DN of the created object (str)
         """
-        return self._set_fields(object_type, None, values)
+        if template_dn:
+            return self._create_object_from_template(object_type, template_dn, values)
+        else:
+            return self._set_fields(object_type, None, values)
 
     def update_object(self, object_type, object_dn, values):
         """
@@ -356,7 +369,7 @@ class FusionDirectoryAPI:
         self._post(data)
         return True
 
-    def create_object_from_template(self, object_type, template_dn, values):
+    def _create_object_from_template(self, object_type, template_dn, values):
         """
         Create an object from a template
 
