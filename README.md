@@ -160,6 +160,23 @@ result = api.delete_object("USER", new_user_dn)
 print(f"Deleted user: {result}")
 ```
 
+## Retrieving user data
+Get data from objects using the method _get_objects(object_type, attributes=None, ou=None, filter="")_.
+Set _attributes_ to a dictionary with LDAP attributes as keys, and one of the following as value:
+
+* _1_ : Get a single attribute
+* _*_ : Get attribute(s) as list
+* _raw_ : Untouched LDAP value
+* _b64_ : Base64 encoded data. Usefull for binary data
+
+```
+# Get the _cn_ and a list of _objectClass_ for all _USER_ objects in the database.
+r = api.get_objects("USER", attributes={"cn": "1", "objectClass": "*"})
+
+# Print the result.
+print(r)
+```
+
 # Class documentation
 Technical documentation. For a description of each medthod, look at doc strings in source code.
 
@@ -171,7 +188,7 @@ Technical documentation. For a description of each medthod, look at doc strings 
 * delete_tab(object_type, object_dn, tab)
 * delete_object(object_type, object_dn)
 * get_base()
-* get_fields(object_type, object_dn=None, tab=None)
+* get_fields(object_type, object_dn=None, tab=None) (USELESS?)
 * get_number_of_objects(object_type, ou=None, filter="")
 * get_id()
 * get_objects(object_type, attributes=None, ou=None, filter="")
@@ -180,11 +197,11 @@ Technical documentation. For a description of each medthod, look at doc strings 
 * get_tabs(object_type, object_dn=None)
 * get_info(object_type)
 * get_recovery_token(email)
-* get_template(object_type, template_dn)
+* get_template(object_type, template_dn) (USELESS?)
 * is_user_locked(user_dn)
 * lock_user(user_dn)
 * login(user, password, database)
 * logout()
-* set_password(uid, password, token)
+* set_password(uid, password, token) (TOKEN ALWAYS INVALID?)
 * unlock_user(user_dn)
 * update_object(object_type, object_dn, values)
