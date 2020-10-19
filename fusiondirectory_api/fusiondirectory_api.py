@@ -1,9 +1,26 @@
-import re
+#import re
 import requests
 
 
 class FusionDirectoryAPI:
-    def __init__(self, host, user, password, database, login=True):
+    def __init__(self, host, user, password, database, verify_cert = True, login=True, enforce_encryption = True, client_id = "python_api_wrapper"):
+        """
+        Log in to FusionDirectory server (Request a session ID)
+
+        Args:
+            host: The address of the FusionDirectory host including protocol (https://)
+            user: The name of the FD user to log in as
+            password: The password of the FD user
+            database: The database to use (As seen in FD GUI)
+            verify_cert: Verify server certificate (Default: True).
+            See requests documentation for options (https://2.python-requests.org/en/master/user/advanced/#verification)
+            login: Automatically log in on object instantiation (Default: True)
+            enforce_encryption: Raise an exception if traffic is unencrypted (Not https:// in host)
+        """
+
+        # Must encrypt traffic
+        if "https://" not in host and enforce_encryption:
+            raise ValueError("Unencrypted host not allowed: {host}")
 
         # The session to use for all requests
         self._session = requests.Session()
@@ -14,8 +31,11 @@ class FusionDirectoryAPI:
         # Log in to get this ID from FD
         self._session_id = None
 
-        # Send this ID wuth all requests
-        self._id = "API"
+        # Pass to requests
+        self._verify_cert = verify_cert
+
+        # Send this ID with all requests
+        self._client_id = client_id
 
         # Login to FD (Get a session_id)
         if login:
@@ -468,11 +488,11 @@ class FusionDirectoryAPI:
         Returns:
             result: The value of the key 'result' in the JSON returned by the server
         """
-        # All requests must have this, non session, ID (Don't know why?)
-        data["id"] = self._id
+        # Client ID (Se we can identify calls in server logs?
+        data["id"] = self._client_id
 
         # Post
-        r = self._session.post(self._url, json=data)
+        r = self._session.post(self._url, json=data, verify=self._verify_cert)
 
         # Raise exception on error codes
         r.raise_for_status()
