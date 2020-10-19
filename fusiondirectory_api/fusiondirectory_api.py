@@ -98,13 +98,17 @@ class FusionDirectoryAPI:
         #assert type(r) == int
         return r
 
-    def get_id(self):
+    def get_session_id(self):
         """
         Get current session ID
 
         Returns:
             The currents session id (str)
         """
+        # Not logged in
+        if not self._session_id:
+            return self._session_id
+
         data = {"method": "getId", "params": [self._session_id]}
         return self._post(data)
 
