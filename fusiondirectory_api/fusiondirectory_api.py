@@ -127,7 +127,7 @@ class FusionDirectoryAPI:
         # The API returns None for some object types
         # I'm aware of these: ["DASHBOARD", "SPECIAL", "LDAPMANAGER"]
         # Let's return -1, so we always return an int
-        if not r:
+        if r == None:
             r = -1
         # assert type(r) == int
         return r
