@@ -53,7 +53,8 @@ class FusionDirectoryAPI:
 
     def get_fields(self, object_type, object_dn=None, tab=None):
         """
-        Get all fields of an object type as they are stored in FusionDirectory
+        Get all fields of an object type as they are stored in FusionDirectory.
+        Not very usefull unless using data for a GUI.
 
         Args:
             object_type (str): The type of object to get the fields for
@@ -69,7 +70,7 @@ class FusionDirectoryAPI:
         }
         return self._post(data)
 
-    def get_number_of_objects(self, object_type, ou=None, filter=""):
+    def get_number_of_objects(self, object_type, ou=None, filter=None):
         """
         Get the number of a given object type limited by OU and/or filter
 
@@ -80,12 +81,22 @@ class FusionDirectoryAPI:
 
         Returns:
             The number of objects of type object_type in the OU (int)
+            Some object types including "DASHBOARD", "SPECIAL", "LDAPMANAGER"
+            maybe others, results in a None value from the API. This functions
+            returns -1 in those cases.
         """
+
         data = {
             "method": "count",
             "params": [self._session_id, object_type, ou, filter],
         }
-        return self._post(data)
+        r = self._post(data)
+        # The API returns None for some object types
+        # I'm aware of these: ["DASHBOARD", "SPECIAL", "LDAPMANAGER"]
+        # Let's return -1, so we always return an int
+        if not r: r = -1
+        #assert type(r) == int
+        return r
 
     def get_id(self):
         """
@@ -97,7 +108,48 @@ class FusionDirectoryAPI:
         data = {"method": "getId", "params": [self._session_id]}
         return self._post(data)
 
-    def get_objects(self, object_type, attributes=None, ou=None, filter=""):
+    def get_object(self, object_type, dn, attributes={"objectClass": "*"}):
+        """
+        Get attributes for a single object.
+
+        Arguments:
+            object_type (str): The object type to list
+            dn: The DN of the object to retrieve
+            attributes: The attributes to fetch.
+            If this is a single value, the resulting dictionary will have
+            for each dn the value of this attribute.
+            If this is an array, the keys must be the wanted attributes,
+            and the values can be either 1, '*', 'b64' or 'raw'
+            depending if you want a single value or an array of values.
+            Other values are considered to be 1.
+            'raw' means untouched LDAP value and is only useful for dns.
+            'b64' means an array of base64 encoded values and is mainly useful for binary attributes.
+
+        Returns:
+            A dictionary of attributes for the object
+        """
+        # Grab the left most part of the dn (uid=??) as filter
+        f = dn.split(",")[0]
+        filter = f"({f})"
+        # DN with out left most part is OU (Base for search)
+        ou = ",".join(dn.split(",")[1:])
+        data = {
+            "method": "ls",
+            "params": [self._session_id, object_type, attributes, ou, filter],
+        }
+        # FIXME: Check what data is returned if no objects are found
+        r = self._post(data)
+        # API returns an empty list is on no results. I need a dict.
+        if r == []:
+            r = {}
+        else:
+            # Api returns the user's data as value for key DN. We just
+            # want the value (The LDAP fields)
+            r = r[dn]
+        #assert type(r) == dict
+        return(r)
+
+    def get_objects(self, object_type, attributes=None, ou=None, filter=None):
         """
         Get objects of a certain type. Potentially with LDAP attributes and limited
         by OU and/or a filter.
@@ -123,7 +175,12 @@ class FusionDirectoryAPI:
             "method": "ls",
             "params": [self._session_id, object_type, attributes, ou, filter],
         }
-        return self._post(data)
+        # FIXME: Check what data is returned if no objects are found
+        r = self._post(data)
+        # An empty list is returned on no results. I need a dict.
+        if r == []: r = {}
+        #assert type(r) == dict
+        return(r)
 
     def get_databases(self):
         """
@@ -131,7 +188,8 @@ class FusionDirectoryAPI:
         values for the 'database' argument in login()
 
         Returns:
-            A list of databases managed by FusionDirectory
+            A dict of databases managed by FusionDirectory. Key is id,
+            value is displayable name.
         """
         data = {"method": "listLdaps", "params": []}
         return self._post(data)
@@ -167,7 +225,7 @@ class FusionDirectoryAPI:
         }
         return self._post(data)
 
-    def get_info(self, object_type):
+    def get_object_type_info(self, object_type):
         """
         Get the information on an object type
 
@@ -180,19 +238,25 @@ class FusionDirectoryAPI:
         data = {"method": "infos", "params": [self._session_id, object_type]}
         return self._post(data)
 
-    def is_user_locked(self, user_dn):
+    def user_is_locked(self, user_dn):
         """
-        Get the lock state of one, or more, users
+        Is the user locked?
 
         Args:
             user_dn (str/list): A single DN or a list of DNs
 
         Returns:
-            result: A dictionary with user DNs as keys and the
-            lock state as values: 0 = unlocked, 1 = locked
+            True if user locked. False if not locked.
         """
+        # API accepts both list of DNs and a single DN. I don't
+        if type(user_dn) != str:
+            raise ValueError("user_dn must be a string")
         data = {"method": "isUserLocked", "params": [self._session_id, user_dn]}
-        return self._post(data)
+        r = self._post(data)
+        # API returns a dict with DN as key, and 0 or 1 in value
+        #assert len(r) == 1
+        # Return value in dict as bool
+        return bool(list(r.values())[0])
 
     def lock_user(self, user_dn):
         """
