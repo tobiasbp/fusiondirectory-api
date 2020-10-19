@@ -190,18 +190,32 @@ Technical documentation. For a description of each medthod, look at doc strings 
 * get_base()
 * get_fields(object_type, object_dn=None, tab=None) (USELESS?)
 * get_number_of_objects(object_type, ou=None, filter="")
-* get_id()
-* get_objects(object_type, attributes=None, ou=None, filter="")
-* get_databases()
+* get_session_id()
+* get_objects(object_type, attributes={"objectType" = "*"}, ou=None, filter=None)
+* get_object(object_type, dn, attributes={"objectType" = "*"})
+* get_object_type_info(object_type)
 * get_object_types()
+* get_databases()
 * get_tabs(object_type, object_dn=None)
-* get_info(object_type)
 * get_recovery_token(email)
 * get_template(object_type, template_dn) (USELESS?)
-* is_user_locked(user_dn)
+* user_is_locked(user_dn)
 * lock_user(user_dn)
-* login(user, password, database)
+* unlock_user(user_dn)
+* login(user, password, database, verify_cert=True, login=True, enforce_encryption=True, client_id="python_api_wrapper")
 * logout()
 * set_password(uid, password, token) (TOKEN ALWAYS INVALID?)
-* unlock_user(user_dn)
 * update_object(object_type, object_dn, values)
+
+## Testing
+Run tests from project root. You need a running instance of FusionDirectory.
+Set up environment variables (Assuming Linux).
+
+* export FD_USER = "user-name"
+* export FD_PASSWORD = "secret-password"
+* export FD_HOST = "https://fd.example.org"
+* export FD_DATABASE = "my-ldap-database"
+
+```
+py.test tests.py
+```
