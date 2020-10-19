@@ -1,9 +1,22 @@
-#import re
+"""
+A wrapper for the webservice (RPC API) for FusionDirectory.
+"""
+
 import requests
 
 
 class FusionDirectoryAPI:
-    def __init__(self, host, user, password, database, verify_cert = True, login=True, enforce_encryption = True, client_id = "python_api_wrapper"):
+    def __init__(
+        self,
+        host,
+        user,
+        password,
+        database,
+        verify_cert=True,
+        login=True,
+        enforce_encryption=True,
+        client_id="python_api_wrapper",
+    ):
         """
         Log in to FusionDirectory server (Request a session ID)
 
@@ -59,7 +72,7 @@ class FusionDirectoryAPI:
         r = self._post(data)
         # Api returns nothing on success, so anything is an error
         if r:
-            raise Exception(r)
+            raise LookupError(r)
         else:
             return True
 
@@ -114,8 +127,9 @@ class FusionDirectoryAPI:
         # The API returns None for some object types
         # I'm aware of these: ["DASHBOARD", "SPECIAL", "LDAPMANAGER"]
         # Let's return -1, so we always return an int
-        if not r: r = -1
-        #assert type(r) == int
+        if not r:
+            r = -1
+        # assert type(r) == int
         return r
 
     def get_session_id(self):
@@ -170,8 +184,8 @@ class FusionDirectoryAPI:
             # Api returns the user's data as value for key DN. We just
             # want the value (The LDAP fields)
             r = r[dn]
-        #assert type(r) == dict
-        return(r)
+        # assert type(r) == dict
+        return r
 
     def get_objects(self, object_type, attributes=None, ou=None, filter=None):
         """
@@ -202,9 +216,10 @@ class FusionDirectoryAPI:
         # FIXME: Check what data is returned if no objects are found
         r = self._post(data)
         # An empty list is returned on no results. I need a dict.
-        if r == []: r = {}
-        #assert type(r) == dict
-        return(r)
+        if r == []:
+            r = {}
+        # assert type(r) == dict
+        return r
 
     def get_databases(self):
         """
@@ -278,7 +293,7 @@ class FusionDirectoryAPI:
         data = {"method": "isUserLocked", "params": [self._session_id, user_dn]}
         r = self._post(data)
         # API returns a dict with DN as key, and 0 or 1 in value
-        #assert len(r) == 1
+        # assert len(r) == 1
         # Return value in dict as bool
         return bool(list(r.values())[0])
 
@@ -336,6 +351,8 @@ class FusionDirectoryAPI:
         """
         data = {"method": "recoveryGenToken", "params": [self._session_id, email]}
         r = self._post(data)
+        # FIXME: I get no UID in the dict (Value == None).
+        # According to the documentation, I should?
         return r["token"]
 
     def get_template(self, object_type, template_dn):
@@ -501,10 +518,10 @@ class FusionDirectoryAPI:
         r = r.json()
 
         if r["error"]:
-            raise Exception(f"FD returned error: {r['error']}")
+            raise LookupError(f"FD returned error: {r['error']}")
         else:
             # The result value can have the key errors with a list
             if type(r["result"]) == dict and r["result"].get("errors"):
-                raise Exception("".join(r["result"]["errors"]))
+                raise LookupError("".join(r["result"]["errors"]))
             else:
                 return r["result"]
