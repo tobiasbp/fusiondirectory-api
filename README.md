@@ -197,7 +197,7 @@ Technical documentation. For a description of each medthod, look at doc strings 
 * get_object_types()
 * get_databases()
 * get_tabs(object_type, object_dn=None)
-* get_recovery_token(email)
+* get_recovery_token(email) (Returns None for UID?)
 * get_template(object_type, template_dn) (USELESS?)
 * user_is_locked(user_dn)
 * lock_user(user_dn)
@@ -207,7 +207,7 @@ Technical documentation. For a description of each medthod, look at doc strings 
 * set_password(uid, password, token) (TOKEN ALWAYS INVALID?)
 * update_object(object_type, object_dn, values)
 
-## Testing
+# Testing
 Run tests from project root. You need a running instance of FusionDirectory.
 Set up environment variables (Assuming Linux).
 
@@ -219,3 +219,12 @@ Set up environment variables (Assuming Linux).
 ```
 py.test tests.py
 ```
+
+# Known issues
+Know issues go here.
+## Tokens returned by get_recovery_token() do not work.
+API does not return value for _uid_. When using the token, _FD_ says _"Invalid token"_.
+
+## Useless methods
+Some methods, like _get_template()_ & _get_fields(_) do not seem to be usefull.
+Consider removal of such methods to cut down on complexity.
